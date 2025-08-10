@@ -21,7 +21,17 @@ The repository is structured into phases.  Each phase includes a high‑level de
 
 Phase 1a is about building a safe and realistic environment where you can practise.  You will create the accounts, tools, networks and virtual machines that form the foundation for later phases.
 
-- **Create essential accounts**: GitHub for code and documentation; Slack for alerts and collaboration; Jira (or another ticketing system) for tracking tasks and incidents; AWS and Azure free tiers for future cloud experiments; VirusTotal & AbuseIPDB for IOC lookups; HashiCorp services (Terraform Cloud or Vault) to store your Terraform state and secrets; Tenable Nessus for vulnerability scanning; and Jenkins for CI/CD pipelines.  Generate API keys where required and store them in a local `.env` file rather than committing them to GitHub.
+  - **Create essential accounts**: Set up free accounts on key services and enable multi‑factor authentication wherever possible.  Detailed sign‑up instructions and best practices are documented in `phase1/home‑lab‑setup.md`.  Use the official sign‑up pages below:
+
+    - [GitHub](https://github.com/signup) — host your code, documentation and CI pipelines.
+    - [Slack](https://slack.com/get-started#/signup) — receive alerts from your pipelines and monitoring tools, and collaborate with teammates.
+    - [Jira](https://www.atlassian.com/software/jira/free) — or another ticketing system to track tasks and incident‑response actions.
+    - [AWS Free Tier](https://aws.amazon.com/free) & [Azure Free Account](https://azure.microsoft.com/en-us/free/) — provision cloud resources (VPCs, subnets, virtual machines) for later experiments.
+    - [VirusTotal](https://www.virustotal.com/gui/join-us) & [AbuseIPDB](https://www.abuseipdb.com/register) — look up file and IP reputation when investigating alerts.
+    - [HashiCorp Terraform Cloud](https://app.terraform.io/signup) or [Vault](https://developer.hashicorp.com/vault) — securely store your Terraform state and secrets.
+    - [Tenable Nessus Essentials](https://www.tenable.com/products/nessus/nessus-essentials) — perform vulnerability scans of your internal network.
+    - [Jenkins](https://www.jenkins.io/download/) — install on your CI server to run pipelines; you can also use GitHub Actions if you prefer.
+    - Generate API keys where required and store them in a local `.env` file rather than committing them to GitHub.
 
 - **Install host tools**: Use Homebrew (macOS) or your Linux/Windows package manager to install Python 3.12 and set up `pipx` and `poetry` for managing Python packages.  Install security linters such as `ruff`, `mypy`, `pytest`, `bandit`, `pip‑audit`, and enable `pre‑commit` hooks to run these tools automatically.  Add Git, VS Code (with extensions), Wireshark, virtualization software (VirtualBox or VMware) and a container runtime (Docker Desktop or Docker/Colima).
 
