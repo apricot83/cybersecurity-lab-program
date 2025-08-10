@@ -129,3 +129,20 @@ After completing this lab setup:
 2. Start building detection rules (Sigma, Suricata and YARA) and store them in a `detections/` directory.
 3. Expand your lab with cloud resources using Terraform and scan them with Checkov.
 4. Explore adversary emulation tools such as Atomic Red Team and Caldera to generate realistic attack patterns and test your detections【591465785898967†L118-L129】.
+
+## Additional Tools and Integrations
+
+### Wazuh and Elastic SIEM
+- **Wazuh** acts as a host intrusion detection and file integrity monitoring platform. Deploy a Wazuh manager (or use the Wazuh container) and install agents on Linux and Windows hosts to collect logs, detect anomalies, and monitor compliance. Ingest Wazuh alerts into the Elastic Stack so they appear alongside your Suricata network events.
+
+### MISP – Malware Information Sharing Platform
+- Deploy **MISP** on your Docker host or a separate VM to gather and share indicators of compromise (IOCs). MISP centralizes threat intelligence from open‑source feeds and your own lab findings. Configure MISP to synchronize with public communities and export feeds for Suricata and Elastic.
+- Integrate MISP with Wazuh and Suricata by converting IOCs into detection rules. Connect MISP to The Hive to automatically enrich cases with context from threat feeds【261375728248962†L254-L270】.
+
+### The Hive and Cortex Case Management
+- Run **The Hive** and **Cortex** in Docker using the combined image. The Hive provides an incident‑response and case‑management platform that lets analysts track incidents, assign tasks, collaborate and standardize documentation【261375728248962†L254-L270】. Cortex offers analyzers to enrich observables with data from VirusTotal, AbuseIPDB, Shodan, DomainTools and other services【921292551552632†L50-L63】.
+- Create case templates for common alerts (e.g., port scan, suspicious binary, brute‑force login) and automate case creation from Wazuh or Suricata alerts via The Hive’s REST API【921292551552632†L50-L63】.
+- Connect The Hive to MISP to pull threat‑intelligence into cases, and to Slack or Jira for notifications and ticketing【261375728248962†L254-L270】.
+
+### Importance of Python
+- **Python** is central to this program. Use it to automate log parsing, build enrichment scripts that query VirusTotal or MISP, develop scripts to generate Sigma/YARA/Suricata rules from threat feeds, and prototype anomaly‑detection models. Python’s rich ecosystem lets you tie together your SIEM, SOAR and case‑management workflows, making it a critical skill for modern detection engineering.
