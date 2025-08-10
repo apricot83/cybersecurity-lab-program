@@ -89,6 +89,8 @@ Preparing your workstation involves installing the tools you’ll use throughout
    brew install wireshark
    ```
 
+   After installing **Visual Studio Code** you should treat it as your primary IDE: install recommended extensions for Python, YAML, Terraform, Ansible and Docker, and enable the Remote‑SSH extension so you can edit files inside your lab VMs without copying them to your host.
+
    On Linux, replace `brew install` with your package manager commands (`sudo apt install git python3 python3-pip virtualbox docker.io` etc.).  On Windows, use Chocolatey or Winget: `choco install python git docker-desktop virtualbox wireshark`.
 
 3. **Install security and linting tools.**  Use `pipx` to install the Python tools that will keep your scripts clean and secure:
