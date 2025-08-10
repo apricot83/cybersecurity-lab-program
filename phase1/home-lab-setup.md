@@ -1,148 +1,98 @@
-# Phase 1 – Home Lab Setup
+# Phase 1 – Home Lab and Scripting Fundamentals
 
-This document provides detailed instructions for building your own full-stack cybersecurity home lab. Instead of relying on external platforms, you will create an entire environment from scratch – including accounts, infrastructure, and tools – so that you can safely practice detection engineering, DevSecOps, incident response, and offensive testing.
+Phase 1 lays the foundation for your cybersecurity journey by helping you build a complete home‑lab environment from the ground up.  Instead of relying on pre‑built training platforms, you will create and manage your own network, servers, and tools.  This approach gives you full control, teaches you how these systems really work, and prepares you for real‑world security work.
 
-## Objectives
-- Build a virtualized lab network with isolated segments for management, internal, and internet-connected zones.
-- Provision multiple virtual machines: a pfSense firewall/router, Linux servers for Docker and CI/CD, an IDS sensor, a Windows workstation, and a Kali Linux attacker box.
-- Create and configure accounts for collaboration (GitHub, Slack, Jira), cloud labs (AWS, Azure), threat intelligence (VirusTotal, AbuseIPDB), and tooling (HashiCorp Terraform Cloud, Nessus Essentials, Jenkins, VS Code).
-- Install core host tools such as Python 3.12, Git, poetry, pre-commit, ruff, mypy, pytest, bandit, pip-audit, VS Code, Wireshark and virtualization software.
-- Deploy open-source detection technologies including Suricata for network monitoring【591465785898967†L97-L101】, YARA for file content analysis【591465785898967†L104-L105】, Elastic Stack and Wazuh as a SIEM【591465785898967†L109-L112】, and integrate them with your lab.
-- Use infrastructure-as-code (Terraform and Ansible) and CI/CD pipelines (Jenkins or GitHub Actions) to automate provisioning and security scanning. Leverage Checkov to scan Terraform, Dockerfiles, Kubernetes manifests and other IaC for misconfigurations【111891855746703†L29-L50】【111891855746703†L90-L97】.
-- Learn DevSecOps principles by building pipelines that enforce security controls early in the development lifecycle【756675528211391†L2-L9】【756675528211391†L62-L90】.
-- Document every step and commit your work into this GitHub repository.
+## What You Will Achieve
 
-## Accounts to Create
+* **Understand the big picture.**  You’ll design a small network with separate segments for management, internal systems, and internet‑facing services.  A pfSense firewall or router sits at the centre, controlling traffic between these zones and the outside world.
 
-Create the following free-tier or community accounts before you start. Use unique passwords and enable multi-factor authentication.
+* **Build multiple virtual machines.**  You’ll deploy several VMs on your host computer: an Ubuntu server for Docker containers and CI/CD tools, a separate Ubuntu server or sensor for Suricata, a Wazuh manager for host‑based intrusion detection and file integrity monitoring, a Windows workstation with Sysmon for endpoint logging, and a Kali Linux attacker box.  Each VM has a specific role in the lab so you can learn both attack and defence.
 
-| Service | Purpose |
-| --- | --- |
-| **GitHub** | Host your code, lab notes, Terraform modules and pipelines |
-| **Slack** | Receive CI/CD notifications and collaborate during incident simulations |
-| **Jira (Atlassian)** | Track tasks, create incident tickets and manage agile sprints |
-| **AWS Free Tier** | Build cloud infrastructure with Terraform; explore AWS services |
-| **Azure Free Tier** | Alternative cloud environment for hybrid scenarios |
-| **HashiCorp Terraform Cloud** | Store remote state and run automated plans; integrate with Checkov |
-| **VirusTotal (VT)** | Enrich indicators of compromise and scan suspicious files |
-| **AbuseIPDB** | Check IP reputation to filter malicious traffic |
-| **Tenable Nessus Essentials** | Perform authenticated and unauthenticated vulnerability scans |
-| **Jenkins** | Self-hosted CI/CD platform; will run your pipelines |
-| **VS Code Account** | Synchronize settings and use extensions (Python, Terraform, Ansible) |
-| **Docker Hub** | Pull and store container images; optional private registry |
+* **Create the accounts you need.**  Set up free accounts on GitHub (for version control), Slack (for alerts and collaboration), Jira or another ticketing tool (for task and incident tracking), AWS and Azure free tiers (for later cloud experiments), VirusTotal and AbuseIPDB (for threat‑intelligence lookups), HashiCorp services such as Terraform Cloud (for infrastructure‑as‑code), Tenable Nessus (for vulnerability scanning) and Jenkins (for continuous integration).  If a service requires an API key, store it in an `.env` file on your local machine and add it to your GitHub repository’s secrets rather than committing it directly.
 
-> Keep API keys (VirusTotal, AbuseIPDB, Slack webhooks, etc.) in a `.env` file that is ignored by Git. Use GitHub Secrets or Jenkins credentials store to inject them into pipelines.
+* **Install essential tools on your host.**  Use Homebrew on macOS or package managers on Linux/Windows to install Python 3.12, Git, Docker/Colima or Docker Desktop, VirtualBox or VMware, Wireshark, and Visual Studio Code.  For Python development, set up `pipx` and `poetry` so you can manage scripts cleanly.  Linting and security tools such as `ruff`, `mypy`, `pytest`, `bandit`, and `pip-audit` will help keep your code safe and maintainable.  Enable `pre-commit` hooks in your repository so these checks run automatically before each commit.
 
-## Host Setup (macOS/Linux)
+* **Deploy core security services.**  You’ll run the ELK Stack (Elasticsearch, Logstash, Kibana) via Docker Compose to collect and visualise logs.  Suricata will provide network‑based intrusion detection; you will tune its rules and export alerts in JSON format.  Wazuh will collect host logs from Linux and Windows systems, monitor file integrity, and perform configuration audits.  YARA rules will allow you to detect suspicious files or binaries.  Later, you can integrate MISP (Malware Information Sharing Platform) for threat‑intelligence sharing and The Hive/Cortex for case management and automated analysis.
 
-Perform these steps on your host machine (a Mac with virtualization support or a Linux PC) to prepare for the lab.
+* **Automate with infrastructure as code.**  Use Terraform to define cloud resources such as VPCs or subnets, and use Ansible to configure your VMs and install packages.  To ensure you’re following best practices, scan your infrastructure code with Checkov and other static analysis tools as part of your CI/CD pipeline (for example, using Jenkins or GitHub Actions).  These pipelines should also run Python linters, security scanners, and tests before deploying any changes.
 
-1. **Install Homebrew (macOS)**:  
-   ```bash
-   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-   ```
+* **Lay the groundwork for threat detection and incident response.**  Collect logs from your Windows and Linux machines using Winlogbeat or Filebeat, send Suricata and Wazuh events into ELK, and build dashboards in Kibana so you can spot unusual activity.  Write simple Python scripts to parse logs, enrich indicators with VirusTotal or AbuseIPDB, and generate alerts.  By the end of Phase 1 you will have a functioning SOC‑style environment ready for deeper detection‑engineering work in later phases.
 
-2. **Install core command-line and development tools**:  
-   ```bash
-   brew install python@3.12 pyenv pipx git jq wget gnupg
-   brew install --cask visual-studio-code wireshark virtualbox      # or VMware Workstation Player
-   brew install docker colima                                       # or Docker Desktop
-   ```
+## 1. Accounts and Prerequisites
 
-3. **Install Python tooling with pipx** (works on Linux with pipx as well):  
-   ```bash
-   pipx ensurepath
-   pipx install poetry pre-commit pip-audit bandit ruff mypy pytest checkov
-   ```
+Before you start building, create the accounts listed below.  They’re mostly free and will support various parts of your lab:
 
-4. **Configure VS Code**: install extensions for Python, Terraform, Ansible, Docker, YAML, and GitLens. Enable autosave and configure Prettier/Black.
+| Service        | Purpose                                   |
+|---------------|--------------------------------------------|
+| **GitHub**    | Store your code, documentation, and CI pipelines.  Use private repositories for sensitive material. |
+| **Slack**     | Receive alerts from your pipelines and monitoring tools; collaborate with others if you work as a team. |
+| **Jira** or another ticketing system | Track tasks and incident response actions. |
+| **AWS/Azure** | Provision cloud resources (VPCs, subnets, virtual machines) when you expand beyond your local lab.  Free tiers are sufficient. |
+| **VirusTotal & AbuseIPDB** | Look up file and IP reputation when investigating alerts. |
+| **HashiCorp (Terraform Cloud or Vault)** | Optional: store your Terraform state and secrets securely. |
+| **Tenable Nessus** | Perform vulnerability scans of your internal network.  Use the Nessus Essentials or trial license. |
+| **Jenkins**   | Host your CI/CD pipelines.  You can also use GitHub Actions if you prefer. |
 
-5. **Virtualization software**: use VirtualBox (free) or VMware Workstation Player. Enable virtualization in BIOS/EFI and allocate at least 16 GB RAM and 200 GB storage to your lab.
+## 2. Preparing Your Host Machine
 
-6. **Networking**: create three networks in VirtualBox:
-   - `Host-only` (e.g., `vboxnet0`) for management – your host and VMs can communicate.
-   - `NAT` network to provide internet access.
-   - `Internal` network (`intnet`) with no external connectivity – used for isolated servers.
+1. **Install a package manager.**  On macOS, run the Homebrew installation script from the official site.  On Linux, ensure `apt`, `dnf`, or your distribution’s package manager is up to date.  On Windows, install Chocolatey or Winget to manage packages.
 
-## Building the Lab Network
+2. **Set up development tools.**  Install Python 3.12 and set up `pipx` and `poetry` so you can install command‑line tools and manage project dependencies.  Install Git, a good text editor (VS Code), and Wireshark.  Use your package manager to install Docker/Colima (or Docker Desktop) and VirtualBox or VMware for virtualization.
 
-1. **pfSense firewall/router**:  
-   - Download the pfSense ISO and create a VM with three NICs: `NAT` (WAN), `Host-only` (management), and `Internal` (LAN).  
-   - Assign IP addresses (e.g., `192.168.56.1/24` on management; `10.10.0.1/24` on internal).  
-   - Configure DHCP on internal, NAT rules, and firewall policies to restrict east–west traffic.
+3. **Configure security tooling.**  Use `pipx` to install Python linters and security checkers such as `ruff`, `mypy`, `pytest`, `bandit`, `pip-audit`, and `pre-commit`.  Run `pre-commit install` inside your repository so these tools check your code automatically when you commit changes.
 
-2. **Ubuntu Docker host (`ubuntu-docker`)**:  
-   - Install Ubuntu Server LTS. Add two NICs: `Host-only` and `Internal`.  
-   - Install Docker and Docker Compose. This VM will run the Elastic Stack (Elasticsearch, Logstash, Kibana) and optional Wazuh server via Docker Compose.  
-   - Deploy an ELK stack using a `docker-compose.yml` file and verify Kibana is reachable.
+4. **Prepare your workspace.**  Create a directory structure similar to the one in your GitHub repository (`/docs`, `/ansible`, `/iac/terraform`, `/jenkins`, `/suricata`, `/detections`, `/wazuh`, `/scripts`).  Place your `.env` file with API keys in a safe location outside version control.
 
-3. **Ubuntu CI server (`ubuntu-ci`)**:  
-   - Install Ubuntu Server. Add two NICs: `Host-only` and `Internal`.  
-   - Install Jenkins, Terraform, Ansible, and necessary plugins.  
-   - Set up Jenkins credentials for GitHub, AWS and Azure.  
-   - Write a Jenkinsfile that runs `ruff`, `bandit`, `pip-audit`, `checkov` and `terraform plan`. Use Slack notifications and Jira ticket creation on failures.
+## 3. Designing the Virtual Network
 
-4. **Suricata sensor (`suricata-sensor`)**:  
-   - Install Ubuntu Server. Add one NIC on `Internal` (or two for inline deployment).  
-   - Install Suricata and enable EVE JSON output; configure `HOME_NET` to your internal subnet.  
-   - Forward EVE logs to Logstash or parse them in Kibana to build detection dashboards.  
-   - Suricata uses detection rules to interrogate network traffic【591465785898967†L97-L101】; create a `local.rules` file for your own signatures.
+Use VirtualBox or VMware to create three virtual networks:
 
-5. **Wazuh manager (`wazuh-manager`)** (optional if not using Docker):  
-   - Install Wazuh on a dedicated VM or container. Wazuh is an open‑source security monitoring platform for intrusion detection and log analysis【591465785898967†L109-L112】.  
-   - Enroll agents on all VMs and your Windows workstation to collect logs and monitor file integrity.
+* **Management network (host‑only).**  This network lets your host operating system communicate with the virtual machines without exposing them to the internet.  Assign it a range such as `192.168.56.0/24`.
 
-6. **Windows 10/11 lab workstation (`win-lab`)**:  
-   - Install Windows 10/11. Add two NICs: `Host-only` and `Internal`.  
-   - Install Sysmon and configure a recommended Sysmon configuration to capture detailed events.  
-   - Install Winlogbeat to forward Windows event logs to Elastic.  
-   - Practice detection by executing benign and malicious behaviours and correlating them with Suricata and ELK.
+* **Internal network.**  This network connects your servers and workstations together (for example, `10.10.0.0/24`).  It has no direct internet access; traffic flows through your pfSense router.
 
-7. **Kali Linux (`kali`)**:  
-   - Install Kali Linux. Add a NIC on the `Internal` network.  
-   - This VM will host offensive tools such as Nmap, Metasploit, John the Ripper, sqlmap and YARA; YARA rules help identify and classify malware samples【591465785898967†L104-L105】.
+* **NAT or DMZ network.**  Use this network to provide controlled internet access for updates and package downloads.  pfSense will handle NAT between this network and the outside world.
 
-## Detection Engineering Tools
+Deploy a pfSense virtual machine with three network interfaces attached to these networks.  Configure basic firewall rules so that management traffic is allowed only from your host, internal traffic is routed appropriately, and any internet‑bound traffic is inspected.
 
-- **Network detection**: Suricata provides signature and anomaly-based detection of network traffic【591465785898967†L97-L101】. You will write and tune custom rules (`suricata/rules/local.rules`).
-- **File content detection**: YARA lets you create signatures for files; integrate YARA scans on your Kali and Docker hosts【591465785898967†L104-L105】.
-- **SIEM**: Elastic Stack (ELK) offers search, logging and analytics; Wazuh adds host intrusion detection, file integrity monitoring and rule-based alerting【591465785898967†L109-L112】.
-- **Threat intelligence integration**: Use VirusTotal and AbuseIPDB APIs to enrich alerts with IP/domain reputation.
+## 4. Building and Configuring Virtual Machines
 
-## Automation, IaC and DevSecOps
+* **Ubuntu Docker Host.**  Install a minimal Ubuntu Server on your first VM.  This host will run Docker and Docker Compose, hosting the ELK stack, Wazuh (if you choose the containerised version), and other services such as MISP and The Hive.  Install Docker using the official convenience script or your package manager and add your user to the `docker` group.  Test your setup by running `docker run hello-world`.
 
-- Install Terraform and Ansible on your CI server. Use Terraform to define VPCs, EC2 instances, security groups and other resources in AWS or Azure. An example is given in the Prisma Cloud DevSecOps workshop, which demonstrates automating IaC security scanning with checkov and integrating with GitHub, VS Code and AWS【756675528211391†L2-L9】.
-- Use Checkov to statically scan Terraform, Kubernetes, Helm, Dockerfile and other IaC configurations for misconfigurations and policy violations【111891855746703†L29-L50】. Checkov has over 1000 built‑in policies covering AWS, Azure and GCP, and can scan pipelines such as GitHub Actions and Jenkins【111891855746703†L90-L97】.
-- Integrate scanning into your pipelines to “shift security left” — i.e., perform security checks early in the development lifecycle【756675528211391†L62-L90】. Pre-commit hooks can run bandit, pip-audit and checkov before code is committed.
+* **CI/CD and IaC Server.**  Use another Ubuntu VM for Jenkins (or simply run Jenkins in a container on the Docker host) and install Terraform and Ansible.  This machine will hold your pipeline definitions (`Jenkinsfile`) and run Checkov, Bandit, and other scans on your code.
 
-## Documentation and Version Control
+* **Suricata Sensor.**  Create a dedicated VM or container to run Suricata.  Install the latest stable version from the official OISF PPA on Ubuntu, or use the Docker image.  Configure its `HOME_NET` to your internal network range and enable JSON logging (EVE format).  If you want to simulate inline monitoring, you can add two network interfaces and bridge them.
 
-- Document each lab step, including commands run, configurations applied and screenshots, in Markdown files under the `docs/` directory of this repository.
-- Use Git branches and pull requests to manage changes. Apply branch protection rules and require passing checkov and bandit scans before merges.
-- Use Jira to track tasks and Slack to receive notifications from Jenkins or GitHub Actions.
+* **Wazuh Manager.**  Install Wazuh either on a standalone VM or as part of a Docker stack.  Follow the documentation to install the manager and register agents.  You will install agents on your Ubuntu and Windows hosts later to collect system logs and monitor file integrity.
 
-## Next Steps
+* **Windows Workstation.**  Create a Windows 10 or Windows 11 VM to act as a user endpoint.  Install Sysmon with a reputable configuration (such as the ones provided by SwiftOnSecurity or Olaf Hartong) to generate detailed event logs.  Install Winlogbeat to forward logs to your ELK stack and the Wazuh agent for host‑based monitoring.
 
-After completing this lab setup:
+* **Kali Linux.**  Deploy a Kali VM to act as your attacker machine.  Keep its toolset lean: Nmap, Metasploit, YARA, and a few web testing tools.  You will use this system to scan your network and test your detection rules.  Always document your attack steps and the corresponding alerts generated in your SIEM.
 
-1. Commit your `.env.example` template and ensure sensitive keys are kept out of version control.
-2. Start building detection rules (Sigma, Suricata and YARA) and store them in a `detections/` directory.
-3. Expand your lab with cloud resources using Terraform and scan them with Checkov.
-4. Explore adversary emulation tools such as Atomic Red Team and Caldera to generate realistic attack patterns and test your detections【591465785898967†L118-L129】.
+## 5. Deploying Security Monitoring and Detection
 
-## Additional Tools and Integrations
+1. **ELK Stack.**  Use a `docker-compose.yml` file to run Elasticsearch, Logstash, and Kibana.  Disable X‑Pack security features for simplicity in the lab.  Expose Kibana on port 5601 and Elasticsearch on port 9200.  Build dashboards to visualise Suricata, Wazuh, Sysmon, and other logs.
 
-### Wazuh and Elastic SIEM
-- **Wazuh** acts as a host intrusion detection and file integrity monitoring platform. Deploy a Wazuh manager (or use the Wazuh container) and install agents on Linux and Windows hosts to collect logs, detect anomalies, and monitor compliance. Ingest Wazuh alerts into the Elastic Stack so they appear alongside your Suricata network events.
+2. **Suricata.**  Enable community rules (Emerging Threats) and create your own rules in a `local.rules` file.  For example, you might write a rule to alert on ICMP traffic between hosts or suspicious HTTP headers.  Ensure JSON output is enabled and configure Filebeat or Logstash to ingest `eve.json` into Elasticsearch.
 
-### MISP – Malware Information Sharing Platform
-- Deploy **MISP** on your Docker host or a separate VM to gather and share indicators of compromise (IOCs). MISP centralizes threat intelligence from open‑source feeds and your own lab findings. Configure MISP to synchronize with public communities and export feeds for Suricata and Elastic.
-- Integrate MISP with Wazuh and Suricata by converting IOCs into detection rules. Connect MISP to The Hive to automatically enrich cases with context from threat feeds【261375728248962†L254-L270】.
+3. **Wazuh.**  Register your Linux and Windows machines as agents.  Enable file integrity monitoring to detect changes in important directories, and enable command‑execution monitoring.  Use the Wazuh API to query alerts or forward them to Slack or Jira when high‑severity events occur.  If you plan to integrate Wazuh with The Hive, configure a webhook to convert critical alerts into cases.
 
-### The Hive and Cortex Case Management
-- Run **The Hive** and **Cortex** in Docker using the combined image. The Hive provides an incident‑response and case‑management platform that lets analysts track incidents, assign tasks, collaborate and standardize documentation【261375728248962†L254-L270】. Cortex offers analyzers to enrich observables with data from VirusTotal, AbuseIPDB, Shodan, DomainTools and other services【921292551552632†L50-L63】.
-- Create case templates for common alerts (e.g., port scan, suspicious binary, brute‑force login) and automate case creation from Wazuh or Suricata alerts via The Hive’s REST API【921292551552632†L50-L63】.
-- Connect The Hive to MISP to pull threat‑intelligence into cases, and to Slack or Jira for notifications and ticketing【261375728248962†L254-L270】.
+4. **YARA.**  Write simple YARA rules to detect suspicious files (for example, files with packed characteristics or known malicious strings).  Run YARA scans on your Kali VM or as part of an automated script and send matches to your SIEM.
 
-### Importance of Python
-- **Python** is central to this program. Use it to automate log parsing, build enrichment scripts that query VirusTotal or MISP, develop scripts to generate Sigma/YARA/Suricata rules from threat feeds, and prototype anomaly‑detection models. Python’s rich ecosystem lets you tie together your SIEM, SOAR and case‑management workflows, making it a critical skill for modern detection engineering.
+5. **Threat Intelligence and Case Management.**  Install MISP on your Docker host to share and consume Indicators of Compromise (IOCs).  Deploy The Hive and Cortex (via their official Docker images) and integrate them with MISP for automated enrichment.  When Suricata or Wazuh generate a high‑priority alert, a small Python script can create a case in The Hive, pull in MISP data, and assign tasks to you for investigation.
+
+## 6. Infrastructure as Code and Continuous Integration
+
+* **Terraform Projects.**  In your `/iac/terraform` folder, create small Terraform modules, such as a VPC with public and private subnets, or a simple EC2 instance in AWS.  Initialise and plan these modules locally first, then run `terraform apply` from Jenkins or GitHub Actions once you’re confident.  Save your Terraform state securely in Terraform Cloud or an S3 bucket with versioning enabled.
+
+* **Ansible Playbooks.**  Use the `/ansible` directory to store your inventory and playbooks.  Write roles to install packages (Docker, Suricata, Wazuh) and to configure services.  Running `ansible-playbook` ensures that your VMs can be rebuilt consistently.
+
+* **CI/CD Pipelines.**  Create a `Jenkinsfile` or GitHub Actions workflow that runs on every push.  It should execute linting (`ruff`, `mypy`), security scanning (`bandit`, `pip-audit`), infrastructure scanning (`checkov`), and unit tests (`pytest`).  Upon success, it can run `terraform plan`.  Configure Slack or Jira notifications so you’re alerted to failures or policy violations.
+
+## 7. Documentation and Version Control
+
+Treat your lab like a professional project.  Keep detailed notes in Markdown files under the `/docs` directory.  For each experiment, record the goal, the steps you took, any code you wrote, screenshots of the outcome, and what you learned.  Use meaningful commit messages and branch names (for example, `feature/suricata-setup`).  Protect the `main` branch by requiring reviews or checks before merges.
+
+## 8. Moving Forward
+
+By the end of Phase 1 you’ll have a working home lab with firewalls, servers, sensors, a SIEM, and a CI/CD pipeline.  You’ll also have developed solid scripting habits, set up version control and collaboration tools, and started collecting logs and alerts.  In Phase 2 you’ll focus on network and web security, exploring web vulnerabilities, inspecting traffic with Suricata and Wireshark, and improving your detection rules.  Keep iterating on your lab – upgrade your services, add new detection content, and document everything so you can demonstrate your skills during interviews.
