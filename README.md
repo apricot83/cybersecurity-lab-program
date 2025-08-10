@@ -1,59 +1,82 @@
 # cybersecurity-lab-program
 
-This repository documents and provides hands‑on labs for a comprehensive “zero to hero” cyber‑security learning program.  The program is designed as an experiential self‑study path inspired by SANS‑style training: you will build and maintain a full‑stack home lab, learn by doing projects, integrate AI/ML ideas, and produce resume‑ready artifacts.
+This repository contains the code, infrastructure definitions, documentation, and labs for a comprehensive “zero‑to‑hero” cyber‑security learning program.  The program is designed to be hands‑on and project‑driven: you build a full‑stack home lab, learn by doing, integrate AI/ML ideas where appropriate, and leave with a portfolio of technical artifacts.  It follows a phased approach inspired by SANS‑style training and is intended for newcomers who want to become proficient security engineers, detection engineers, or DevSecOps practitioners.
 
 ## Overview
 
-The goal is to take a complete beginner from foundational concepts through advanced topics such as DevSecOps, threat detection, incident response, offensive security, cloud security and zero‑trust architectures.  Rather than relying on third‑party training platforms, you will build your own network, instrumentation and automation.  Projects include pfSense‑driven networks, host‑intrusion detection with Wazuh, network detection with Suricata, threat‑intelligence sharing with MISP, case management with The Hive/Cortex, automated IaC pipelines (Terraform, Ansible) scanned by Checkov, and data‑driven dashboards with ELK.  Python is used throughout for scripting, automation, enrichment and machine‑learning prototypes.
+The program takes you from foundational concepts through advanced topics such as network defence, DevSecOps, threat detection, incident response, offensive security, cloud security and zero‑trust architectures.  Unlike many courses that rely on third‑party training platforms, you will build your own network, servers, detection stack, and automation pipeline.  Key projects include:
 
-## Phase 1 – Home Lab and Scripting Fundamentals
+- **PfSense‑driven networks** with separate management, internal and internet segments.
+- **Host‑intrusion detection** using Wazuh and Sysmon.
+- **Network detection** with Suricata sensors and custom rules.
+- **Threat‑intelligence sharing** through MISP and enrichment with VirusTotal/AbuseIPDB.
+- **Case management** with The Hive and Cortex to triage and track incidents.
+- **Infrastructure‑as‑code pipelines** using Terraform and Ansible, scanned by Checkov and integrated into Jenkins or GitHub Actions.
+- **Data‑driven dashboards** built on the ELK Stack (Elasticsearch, Logstash, Kibana).
+- **Python scripting** throughout—for automating scans, parsing logs, enriching alerts, integrating APIs, and prototyping basic ML models.
 
-* Create all required accounts (GitHub, Slack, Jira, AWS/Azure free tiers, VirusTotal, AbuseIPDB, Tenable Nessus, Jenkins, HashiCorp Cloud) and generate API keys stored in `.env` files (never committed).
-* Install host tools on your workstation: Homebrew, Python 3.12 + pipx/poetry, quality/security linters (ruff, mypy, pytest, bandit, pip‑audit, pre‑commit), VS Code with extensions, Wireshark, virtualization (VirtualBox or VMware), Docker and Colima (or Docker Desktop).
-* Design a virtual network: Host‑only (management), NAT (internet) and internal segments.  Use pfSense as a router/firewall to connect them and enforce policies.
-* Provision VMs: Ubuntu servers for Docker stacks and CI/CD, a Suricata sensor, a Wazuh manager (or Wazuh container), a Windows workstation (with Sysmon) and a Kali Linux attacker.  Use Ansible to harden and configure them.
-* Deploy core services: an ELK stack (Elasticsearch/Logstash/Kibana) via docker‑compose, Suricata on a sensor VM with custom rules, Wazuh manager with agents, MISP (malware information sharing) and The Hive/Cortex via Docker.  Wire Suricata and Wazuh events into ELK and configure case creation in The Hive via Python webhooks.
-* Learn networking fundamentals (OSI, IP/TCP/UDP, routing, DNS), basic Linux and Windows administration, and introductory scripting (Python, Bash, PowerShell).  Write scripts to automate scanning and log analysis.
+The repository is structured into phases.  Each phase includes a high‑level description here in the README and detailed step‑by‑step instructions under the corresponding folder in `phase1/`, `phase2/`, etc.
 
-## Phase 2 – Network & Web Security
+## Phase 1a – Home Lab Setup
 
-* Study firewalls, VPNs and IDS/IPS concepts.  Tune your pfSense rules and Suricata signatures.  Capture traffic with Wireshark and build dashboards in Kibana.
-* Explore vulnerability scanning with Nmap, OpenVAS/Greenbone and Tenable Nessus.  Analyse reports and remediate in your lab.
-* Install and secure sample web applications (e.g., OWASP Juice Shop or DVWA) on a separate VM.  Perform reconnaissance and attacks from Kali and mitigate them through secure coding and configuration.
-* Practice TLS, certificates and encryption with OpenSSL and GnuPG.
+Phase 1a is about building a safe and realistic environment where you can practise.  You will create the accounts, tools, networks and virtual machines that form the foundation for later phases.
 
-## Phase 3 – Secure Coding, DevSecOps & Automation
+- **Create essential accounts**: GitHub for code and documentation; Slack for alerts and collaboration; Jira (or another ticketing system) for tracking tasks and incidents; AWS and Azure free tiers for future cloud experiments; VirusTotal & AbuseIPDB for IOC lookups; HashiCorp services (Terraform Cloud or Vault) to store your Terraform state and secrets; Tenable Nessus for vulnerability scanning; and Jenkins for CI/CD pipelines.  Generate API keys where required and store them in a local `.env` file rather than committing them to GitHub.
 
-* Learn secure coding practices: input validation, authentication/authorization, cryptography and error handling.  Build a simple REST API in Python and secure it.
-* Set up continuous integration/continuous deployment (CI/CD) using Jenkins or GitHub Actions.  Use Terraform to define cloud lab resources, Ansible to configure hosts, and integrate security scanning tools: Checkov for IaC, Bandit for Python, Trivy for containers, Ruff/Mypy/PyTest for code quality.
-* Containerize services with Docker and orchestrate them with Kubernetes (optional: Minikube/Kind).  Scan images and containers for vulnerabilities.
-* Incorporate pre‑commit hooks to enforce coding standards and run security checks automatically.
+- **Install host tools**: Use Homebrew (macOS) or your Linux/Windows package manager to install Python 3.12 and set up `pipx` and `poetry` for managing Python packages.  Install security linters such as `ruff`, `mypy`, `pytest`, `bandit`, `pip‑audit`, and enable `pre‑commit` hooks to run these tools automatically.  Add Git, VS Code (with extensions), Wireshark, virtualization software (VirtualBox or VMware) and a container runtime (Docker Desktop or Docker/Colima).
 
-## Phase 4 – Threat Detection & Incident Response
+- **Design the virtual network**: Create three virtual networks in VirtualBox/VMware—a host‑only management network, a NAT or DMZ network for internet access, and an internal network for servers and workstations.  Deploy a **pfSense** firewall/router with interfaces on each network.  Configure pfSense to allow management traffic from your host, route internal traffic, and perform NAT for external access.
 
-* Ingest logs into ELK: Sysmon and Winlogbeat from Windows, Filebeat/Auditbeat from Linux, Suricata EVE JSON and Wazuh alerts.  Build detection dashboards and alerts.
-* Write and tune detection rules: Sigma for SIEM, Suricata custom rules for network events, YARA rules for file analysis, and Python heuristics.  Use MITRE ATT&CK to map techniques.
-* Integrate Wazuh alerts with MISP and automatically enrich indicators.  Use Python scripts to call VirusTotal and AbuseIPDB and append data to The Hive cases.
-* Develop incident response playbooks.  Use The Hive to manage cases, collaborate with team members, and run automated analyzers via Cortex.  Document each investigation thoroughly.
+- **Provision virtual machines**: Deploy several VMs in your lab:
+  - **Ubuntu Docker host** – runs Docker and Docker Compose for services like the ELK stack, Wazuh (if containerised), MISP and The Hive.
+  - **CI/CD and IaC server** – runs Jenkins (or GitLab CI) and installs Terraform and Ansible for automation.  This VM holds your pipeline definitions and runs Checkov, Bandit and other scans on your code.
+  - **Suricata sensor** – runs Suricata either as a dedicated VM or container to monitor network traffic.  Configure its `HOME_NET` to match your internal network and enable JSON logging.
+  - **Wazuh manager** – collects logs from Linux and Windows agents, monitors file integrity and command execution, and exposes alerts via API.  You can deploy Wazuh in a container or on its own VM.
+  - **Windows workstation** – a Windows 10/11 VM with Sysmon to generate detailed endpoint logs.  Install Winlogbeat to ship logs to the ELK stack and register the host as a Wazuh agent.
+  - **Kali Linux attacker** – a Kali VM used for reconnaissance and testing.  Keep the toolkit focused (Nmap, Metasploit, YARA, Burp) to practise both attacking and defending against realistic threats.
 
-## Phase 5 – Offensive Security & Vulnerability Management
+- **Deploy core services**: Use Docker Compose on your Ubuntu host to run the ELK stack (Elasticsearch, Logstash, Kibana).  Deploy Suricata sensors, Wazuh, MISP and The Hive/Cortex, either as containers or on their own VMs.  Configure Suricata to send JSON logs to Logstash, register Wazuh agents, and connect MISP and The Hive via API so that high‑priority alerts can be converted into cases.
 
-* Study penetration testing methodologies and frameworks (Nmap, Metasploit, Burp, sqlmap).  Conduct red‑team exercises against your lab environment and then harden systems based on findings.
-* Perform password auditing and credential hunting using John the Ripper and Hashcat.  Explore honeypots and deception technologies.
-* Build a vulnerability management process: schedule periodic scans with Nessus/OpenVAS, triage findings based on CVSS and business impact, and track remediation using Jira.
-* Explore adversary emulation and detection engineering frameworks.
+- **Document as you go**: Create a `/docs` directory and record every step you take—network diagrams, VM specifications, firewall rules, installation commands, troubleshooting notes and screenshots.  This documentation will be invaluable for future phases and job interviews.
 
-## Phase 6 – Advanced Topics and Specialisation
+## Phase 1b – Scripting and Python Fundamentals
 
-* Deep dive into cloud security (AWS, Azure, GCP) and zero‑trust architectures.  Build micro‑services in the cloud and apply least‑privilege IAM policies.
-* Experiment with AI/ML in cyber security: anomaly detection on network traffic, malware classification using feature extraction and simple models.  Study adversarial ML and model robustness.
-* Explore digital forensics and malware analysis tools (Volatility, Autopsy, FTK).  Study incident response for industrial control systems (ICS) and IoT.
-* Prepare for certifications (e.g., Security+, GCIH, GPEN, OSCP, or cloud‑native security certs).  Engage with the community through CTFs and open‑source projects.
+In Phase 1b you learn the core concepts and scripting skills that underpin everything else in the program.  The focus is on mastering Python as your primary automation tool while getting comfortable with Bash and PowerShell.
 
-## Contributing & Structure
+- **Learn networking and OS basics**: Understand the OSI model, IP addressing, ports and protocols (TCP/UDP), DNS and routing.  Practise Linux command‑line skills (file permissions, processes, networking tools like `netstat`, `ss` and `tcpdump`) and Windows administration (PowerShell basics, Event Viewer, Sysmon configuration).
 
-All labs are documented in the `/docs` directory and grouped by phase.  Infrastructure code lives under `/iac` and `/ansible`; pipelines under `/jenkins`; detection rules under `/detections`; ELK and Wazuh configurations under `/elk` and `/wazuh`.  Each Markdown lab page follows a structure: goal → prerequisites → steps → evidence → result.  Use Git branches and pull requests for changes; pre‑commit hooks ensure code quality.
+- **Practise scripting in Python**: Install a Python virtual environment using `pipx` or `poetry` and practise writing scripts that automate common tasks.  Start with simple programs that scan IP ranges using `socket` or `python‑nmap`, parse log files, or interact with the pfSense API.  Use libraries such as `requests` to call external services like VirusTotal and AbuseIPDB.
+
+- **Bash and PowerShell fundamentals**: Learn to write shell scripts that collect system information, enumerate running processes, monitor open ports or parse logs.  On Windows, write PowerShell scripts to fetch event logs and detect anomalies.  Use these scripts in conjunction with Cron or Task Scheduler to automate routine tasks.
+
+- **Security linters and tests**: Run `ruff`, `mypy` and `pytest` on your Python code to enforce style and type safety.  Use `bandit` to scan for insecure coding patterns and `pip‑audit` to check dependencies for known vulnerabilities.  Configure `pre‑commit` to run these checks before each Git commit.
+
+- **Build enrichment and detection scripts**: Write Python programs to process Suricata EVE logs or Wazuh alerts, enrich them with threat‑intelligence lookups, and post high‑severity findings into The Hive.  Experiment with simple machine‑learning techniques (e.g., isolation forests or clustering) to spot anomalous network traffic or system behaviour.
+
+- **Version control and collaboration**: Use Git branches and meaningful commit messages to manage your scripts.  Collaborate via pull requests and code reviews if you work with others.  Set up Slack or Jira integrations so your pipeline can notify you of linting errors, failed tests or security violations.
+
+By the end of Phase 1b you will have a solid grasp of the tools and scripting languages needed for cyber‑security work, with Python skills that underpin automation and analysis across the rest of the program.
+
+## Phase 2 – Network & Web Security
+
+Phase 2 focuses on network defence, web application security and vulnerability assessment.  You will tune your Suricata rules, build dashboards in Kibana, perform vulnerability scans with Nmap, OpenVAS and Nessus, and practise web application hacking on deliberately vulnerable systems.  You’ll learn about OWASP Top 10 vulnerabilities, TLS configuration, network segmentation and firewall hardening.  Detailed instructions live in the `phase2/` folder.
+
+## Phase 3 – Secure Coding, DevSecOps & Automation
+
+Phase 3 introduces secure development practices and embeds security into the software‑delivery pipeline.  You’ll implement CI/CD workflows with Jenkins or GitHub Actions, write Dockerfiles and Kubernetes manifests, integrate static and dynamic code scanners (SonarQube, ZAP), and use Terraform and Ansible to manage infrastructure as code.  The `phase3/` folder contains the labs.
+
+## Phase 4 – Threat Detection & Incident Response
+
+In Phase 4 you build and tune detection content, practise threat hunting and develop incident‑response workflows.  You’ll use the ELK stack and Wazuh to create Sigma and YARA rules, write threat‑hunting queries, automate alert triage via The Hive, and perform forensic analysis using tools like Volatility and Autopsy.  See `phase4/` for details.
+
+## Phase 5 – Offensive Security & Vulnerability Management
+
+Phase 5 teaches ethical hacking and vulnerability management.  You’ll learn the penetration‑testing methodology, use Metasploit and Burp Suite, practise password cracking with John the Ripper, and integrate Nessus/Qualys scans into your CI pipeline.  You’ll also learn how to prioritize vulnerabilities and develop remediation plans.  Labs reside in `phase5/`.
+
+## Phase 6 – Advanced Topics & Specialization
+
+The final phase explores advanced domains such as cloud‑security architectures, zero‑trust implementation, AI/ML security, malware analysis, industrial control systems and IoT.  You’ll deploy workloads in AWS or Azure, implement least‑privilege roles, experiment with adversarial machine‑learning models and analyse malicious code using Ghidra or IDA Free.  Choose the specializations that interest you most.
 
 ---
 
-This README reflects the latest program design, emphasising self‑hosted tools (Wazuh, MISP, The Hive), automation with Terraform/Ansible, and Python‑driven detection engineering.  See `phase1/home‑lab‑setup.md` for detailed setup instructions.
+For detailed lab instructions, sample code, and runbooks, see the subdirectories under each phase.  Contributions and improvements are welcome—please open issues or pull requests if you have suggestions or find any problems.
